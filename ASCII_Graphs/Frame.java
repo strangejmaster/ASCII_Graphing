@@ -11,13 +11,13 @@ public class Frame {
     private String zLabel;
     private DataSet set;
 
-    public Frame(ArrayList<String> lines, String title, String xLabel, String yLabel, String zLabel, DataSet set) {
+    public Frame(ArrayList<String> lines, DataSet set) {
         this.lines = lines;
-        this.title = title;
-        this.xLabel = xLabel;
-        this.yLabel = yLabel;
-        this.zLabel = zLabel;
-        this.DataSet = set;
+        this.title = set.title;
+        this.xLabel = set.xLabel;
+        this.yLabel = set.yLabel;
+        this.zLabel = set.zLabel;
+        this.set = set;
     }
 
     // Getter Methods

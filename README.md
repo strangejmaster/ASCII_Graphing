@@ -22,15 +22,14 @@ None yet but perhaps coming soon...
 
 ## Getting Started
 
-To start you graphing journey simply import the graphing package with `import ASCII_Graphs.*;`
-From here `Frame2D` objects can be created and different graphing methods with the `Graph` class. Have fun!
+Getting started is simple with some quick examples found in the `Examples` folder!
 
 
 ## Terminology
 
-* Frames - Objects that store data to be graphed or just saved
-* Graphs - Methods in the Graph class which graph Frame objects in different ways
-
+* DataSet - An object which stores some data along with helpful pieces of information to be included when graphed 
+* Frame - Objects which store a completed graph
+* Graph - Methods in the Graph class which graph DataSets returning a Frame object
 
 ## Footnotes
 
