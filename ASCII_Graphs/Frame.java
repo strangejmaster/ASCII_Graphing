@@ -1,22 +1,23 @@
 package ASCII_Graphs;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-
-// Frame Object
-public class Frame2D {
+// Frame Object - Stores a rendered graph
+public class Frame {
     private ArrayList<String> lines = new ArrayList<String>();
     private String title;
     private String xLabel;
     private String yLabel;
+    private String zLabel;
+    private DataSet set;
 
-    public Frame2D(ArrayList<String> lines, String title, String xLabel, String yLabel) {
+    public Frame(ArrayList<String> lines, String title, String xLabel, String yLabel, String zLabel, DataSet set) {
         this.lines = lines;
         this.title = title;
         this.xLabel = xLabel;
         this.yLabel = yLabel;
+        this.zLabel = zLabel;
+        this.DataSet = set;
     }
 
     // Getter Methods
@@ -32,6 +33,12 @@ public class Frame2D {
     public String getYLabel() {
         return yLabel;
     }
+    public String getZLabel() {
+        return zLabel;
+    }
+    public DataSet getDataSet() {
+        return set;
+    }
 
     // Prints out lines ArrayList to display graph in terminal
     public void display() {
@@ -40,15 +47,5 @@ public class Frame2D {
         }
     }
 }
+    
 
-public class Graph {
-    // Test Graph
-    public static Frame2D test(int[] values, String title) {
-        ArrayList<String> lines = new ArrayList<String>();
-        lines.add(title);
-        for (int i = 0; i < values.length; i++) {
-            lines.add("[" + values[i] + "]");
-        }
-        return new Frame2D(lines, title, null, null);
-    }
-}
