@@ -31,7 +31,7 @@ public class Graph {
             }
             
             // Throw the point elements between some brackets
-            lines.add("[ " + data + "]");
+            lines.add("Point " + i + " - [ " + data + "]");
         }
         return new Frame(lines, set);
     }
@@ -65,7 +65,7 @@ public class Graph {
         ArrayList<Integer> xValues = set.getDataArray(0);
         ArrayList<Integer> yValues = set.getDataArray(1);
 
-        // 
+        
         int columns = (3 + spacing) * xValues.size() + 1;
         int height;
         if (spacing >= 0) {
