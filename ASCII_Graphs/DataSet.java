@@ -1,6 +1,8 @@
 package ASCII_Graphs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /*
  * Types of DataSets:
@@ -8,7 +10,6 @@ import java.util.ArrayList;
  * 2 - 2 Dimensional
  * 3 - 3 Dimensional
  */
-
 public class DataSet {
     public String title;
     public String xLabel;
@@ -30,7 +31,6 @@ public class DataSet {
             this.set.add(set[i]);
         }
     }
-    
 
     public DataSet(ArrayList<Integer> set) {
         type = 1;
@@ -44,6 +44,23 @@ public class DataSet {
         this.set = set;
     }
     
+    //Returns a certain dimension of the set as an ArrayList, i.e. dimension 0 will return all X-values in the set in an ArrayList
+    public ArrayList<Integer> getDataArray(int dimension) {
+        ArrayList<Integer> vals = new ArrayList<Integer>();
+        for (int i = 0; i < set.size(); i++) {
+            vals.add(set.get(i)[dimension]);
+        }
+        return vals;
+    }
+
+    // *Warning* This action is irriversible but it does not cause any data loss
+    // Sorts the set based on a certain dimension i.e. X-Values from smallest to largest
+    public void sortOnDimension(int dimension) {
+        // int[][] test = new int[][]{{0,0,0},{1,5,2},{-1,2,4}};
+        // Arrays.sort(test);
+        set = Arrays.sort(set, ( (a, b) -> Integer.compare(a.get(0)[0].intValue(), b.get(0)[0].intValue()) ) ) ;
+    }
+
     public int type() {
         return type;
     }
@@ -54,8 +71,6 @@ public class DataSet {
         this.yLabel = yLabel;
         this.zLabel = zLabel;
     }
-
-    
 
     public ArrayList<Integer[]> getData() {
         return set;
