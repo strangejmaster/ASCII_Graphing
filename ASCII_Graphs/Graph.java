@@ -13,9 +13,25 @@ public class Graph {
      */
     public static Frame test(DataSet set) {
         ArrayList<String> lines = new ArrayList<String>();
+
+        // Add title to the first line
         lines.add(set.title);
+        
+        // Loop through each point in the DataSet
         for (int i = 0; i < set.getData().size(); i++) {
-            lines.add("[" + set.getDataPoint(i) + "]");
+            // String to store what each array contains
+            String data = "";
+            
+            // Get the point at the i position
+            Integer[] arr = set.getDataPoint(i);
+
+            // Loop through each element in the point
+            for (int j = 0; j < arr.length; j++) {
+                data += arr[j] + " ";
+            }
+            
+            // Throw the point elements between some brackets
+            lines.add("[ " + data + "]");
         }
         return new Frame(lines, set);
     }
