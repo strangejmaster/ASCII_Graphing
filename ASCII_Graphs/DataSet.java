@@ -58,7 +58,7 @@ public class DataSet {
     public void sortOnDimension(int dimension) {
         // int[][] test = new int[][]{{0,0,0},{1,5,2},{-1,2,4}};
         // Arrays.sort(test);
-        set = Arrays.sort(set, ( (a, b) -> Integer.compare(a.get(0)[0].intValue(), b.get(0)[0].intValue()) ) ) ;
+        // set = Arrays.sort(set, ( (Integer[] a, Integer[] b) -> Integer.compare(a.get(0)[0].intValue(), b.get(0)[0].intValue()) ) ) ;
     }
 
     public int type() {
