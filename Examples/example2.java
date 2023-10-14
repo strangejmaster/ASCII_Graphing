@@ -22,9 +22,9 @@ public class example2 {
         set3.title = "This set is being sorted based on the Third Dimension (2nd index)";
 
         // Sort the DataSets on respective dimensions
-        set1.sortOnIndex(1);
-        set2.sortOnIndex(2);
-        set3.sortOnIndex(3);
+        set1.sortOnIndex(0);
+        set2.sortOnIndex(1);
+        set3.sortOnIndex(2);
 
         // Use the test graph function which displays a Dataset's set then display the Frame that is returned
         Graph.test(set1).display();
