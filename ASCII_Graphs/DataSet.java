@@ -2,7 +2,6 @@ package ASCII_Graphs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 
 /*
  * Types of DataSets:
@@ -54,11 +53,23 @@ public class DataSet {
     }
 
     // *Warning* This action is irriversible but it does not cause any data loss
-    // Sorts the set based on a certain dimension i.e. X-Values from smallest to largest
+    // Sorts the set based on a certain dimension i.e. X-Values from smallest to largest, if two X-values are the same
+    // Credit - https://stackoverflow.com/questions/67125741/how-to-use-arrays-sort-method-to-sort-a-2d-integer-array-in-java
     public void sortOnDimension(int dimension) {
-        // int[][] test = new int[][]{{0,0,0},{1,5,2},{-1,2,4}};
-        // Arrays.sort(test);
-        // set = Arrays.sort(set, ( (Integer[] a, Integer[] b) -> Integer.compare(a.get(0)[0].intValue(), b.get(0)[0].intValue()) ) ) ;
+        // Converts the set to an Object Array (The objects are actually Integer[])
+        Object[] arr = set.toArray();
+
+        // Creates a new dimension int that will bottom out at 0, subtracts 1 since selecting the a dimension (I.e. 1st dimension) needs to access the index below that (I.e. 0th index)
+        final int updatedDimension = (dimension > 0) ? dimension - 1 : 0;
+
+        // Sorts the arr based on the dimension provided
+        Arrays.sort(arr, (a,b) -> ((Integer[]) a)[updatedDimension].intValue() == ((Integer[]) b)[updatedDimension].intValue() ? ((Integer[]) b)[updatedDimension].intValue() - ((Integer[]) a)[updatedDimension].intValue() : ((Integer[]) a)[updatedDimension].intValue() - ((Integer[]) b)[updatedDimension].intValue() );
+        
+        // Adds newly sorted array back to the set after clearing it
+        set.clear();
+        for (int i = 0; i < arr.length; i++) {
+            set.add((Integer[]) arr[i]);
+        }
     }
 
     public int type() {
