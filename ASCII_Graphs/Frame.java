@@ -11,6 +11,7 @@ public class Frame {
     private String zLabel;
     private DataSet set;
 
+// Constructor
     public Frame(ArrayList<String> lines, DataSet set) {
         this.lines = lines;
         this.title = set.title;
@@ -20,7 +21,7 @@ public class Frame {
         this.set = set;
     }
 
-    // Getter Methods
+// Getter Methods
     public ArrayList<String> getLines() {
         return lines;
     }
