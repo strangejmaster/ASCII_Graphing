@@ -7,9 +7,9 @@ The ASCII Graphing package includes the following types of graphs:
 <br>
 ### Modes
 Due to the limitations of displaying graphs brought on by terminal lines there will be two main ways to create graphs when graphing with doubles
-1. Efficient - Each value of a graph will take up only 1 line. For example if 0, 0.5, 1, and 2 were to be graphed each would have its own line with an arrow to the left of it displaying its value i.e. 0, 0.5, etc. While this uses the least lines it does lose visualization accuracy as the spacing of points becomes uneven
+1. Efficient - Each value of a graph will take up only 1 line. For example if 0, 1, and 5 were to be graphed each would have its own line with an arrow to the left of it displaying its value i.e. 0, , etc. While this uses the least lines it does lose visualization accuracy as the spacing of points becomes uneven
 
-2. Scaled - **Caution - This mode may cause massive performance issues, see [^1]** This maintains equal spacing between all points at the cost of space. For example, when graphing the points 0, 0.5, 1, and 2 each whole number will have 1 extra line between them to allow for 0.5 to fit between two lines.
+2. Scaled - **Caution - This mode may cause massive performance issues, see [^1]** This maintains equal spacing between all points at the cost of space. For example, when graphing the points 0, 1, and 5 each line will have spacing between it graphing to 0, 1, 2, 3, 4, and 5.
 
 ### 2D
 * Bar
