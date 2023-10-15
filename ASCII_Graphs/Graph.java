@@ -11,12 +11,16 @@ public class Graph {
      */
 
     // Returns the # of digits in the specified int
-    private static int digits(int value) {
+    private static int digits(int value, boolean countNegative) {
         int fixed = value;
-        
-        if (value < 0) {
+
+        // Print out values
+        // System.out.println(fixed + " | " + String.valueOf(fixed) + " | " + String.valueOf(fixed).length());
+
+        // If a value is negative take the opposite value to count it
+        if (value < 0 && !countNegative) {
             fixed = -value;
-            return String.valueOf( fixed ).length() + 1; // Make sure to account for the - char
+            return String.valueOf( fixed ).length();
         }
         return String.valueOf( fixed ).length(); // Credit - https://www.baeldung.com/java-number-of-digits-in-int
     }
@@ -39,8 +43,10 @@ public class Graph {
     public static Frame test(DataSet set) {
         ArrayList<String> lines = new ArrayList<String>();
 
-        // Add title to the first line
-        lines.add(set.title);
+        if (set.title != null) {
+            // Add title to the first line
+            lines.add(set.title);
+        }
         
         // Loop through each point in the DataSet
         for (int i = 0; i < set.getData().size(); i++) {
@@ -68,188 +74,208 @@ public class Graph {
      * 
      * Parameters:
      * Set - DataSet of values to graph
-     * Mode - How the lines of the graph should be made, normally provides vertical spacing i.e. distance between each Y-value
+     * 
+     * Mode - How the lines of the graph should be made, normally provides vertical spacing i.e. distance between each Y value
      *      (Recommended) -1 will use Efficient Mode (Check readme)
      *      -2 it'll use Scaled Mode (Check readme)
-     * Spacing - Distance between each pillar/column
+     * 
+     * Margin - Distance between each pillar/column
+     * 
+     * Width - Distance inbetween each pillar/column, 
+     * to create graphs with a "middle" the width must be odd, 
+     * therefore the width parameter actually increases the spread by 2, if set to 0 the width will equal 1
+     * 
      * Top - What each bar will be topped with
-     *      0 - Bars will be topped with a `_` character
-     *      1 - Bars will be topped with a `-` character
-     *      2 - Bars will be topped with the Y-value
+     *      (If a value is negative then brackets will be added around it)
+     *      0 - Bars will be topped with the Y value
+     *      1 - Bars will be topped with `_`
+     *      2 - Bars will be topped with `-` 
+     *      3 - Bars will be topped with ` `
+     *      4 - Bars will be topped with `=`  
+     *      
      * Labeling - What labels are displayed
      *     -1 - Nothing Displayed
      *      0 - Title and Labels Displayed
      *      1 - Title Displayed
      *      2 - X and Y Labels Displayed
      */
-    public static Frame bar(DataSet set, int mode, int spacing, int top, int labeling) { 
+    public static Frame bar(DataSet set, int mode, int margin, int width, int top, int labeling) { 
+    // Define all the main things to be used
         // Define ArrayLists
         ArrayList<String> lines = new ArrayList<String>();
 
-
         //Sort the set! (Based on X values)
-        set.sortOnIndex(0); 
-    
+        set.sortOnIndex(0);
 
         // Get the X and Y values to be plotted
         ArrayList<Integer> xValues = set.getDataArray(0);
         ArrayList<Integer> yValues = set.getDataArray(1);
+
+        Graph.test(new DataSet(yValues)).display();
     
         // Extremes
+        // Sorts the set based on Y values
         set.sortOnIndex(1);
-        ArrayList<Integer> yValueSort = set.getDataArray(1);
-        int max = set.getDataPoint( yValueSort.size() - 1 )[1].intValue();
+        // Create a set of Y-values that has been sorted
+        ArrayList<Integer> sortedY = set.getDataArray(1);
+
+        // Get the last (Biggest) and first (Smallest) elements of the Y values
+        int max = set.getDataPoint( sortedY.size() - 1 )[1].intValue();
         int min = set.getDataPoint(0)[1].intValue();
+
+        // Reset sorting back to X values
         set.sortOnIndex(0);
 
-        int height = 0;
-
         // Set the height value depending on which mode is used
+        int height = 0;
         switch (mode) {
             case -1:
-                height = yValues.size();
+                height = max;
                 break;
             case -2:
-            // Not yet implemented
+                height = yValues.size();
                 break;
             default:
                 height = mode;
                 break;
         }
 
-        // Select the correct topper
+        // Select the correct topper (This is the part the fits on top of the bar)
+        char[] toppers = {'x', '_', '-', ' ', '='};
         String topper;
-        switch(top) {
-            case 0:
-                topper = "_";
-                break;
-            case 1:
-                topper = "-";
-                break;
-            case 2:
-                topper = null;
-            default:
-                topper = "_";
-                break;
-        }
 
-        // This is how the bars/columns are seperated, it changes at 0.
-        String spacer = " ";
+        if (top < 0) {
+            // If it's negative just throw the topping in between some brackets
+            topper = "[" + toppers[-top] + "]";
+        }
+        if (top > 0) {
+            // Fill the topper with the desired topping making sure to cover the edges
+            topper = fill(width * 2 + 3, toppers[top]);
+        }
+        if (top == 0) {
+            topper = null;
+        }
+    
+
+        
+
+        // Gets the number of characters in the largest element of the Y axis set
+        int maxDigits = digits(max, true);
+        int minDigits = digits(min, true);
+        int yMargin = (maxDigits > minDigits) ? maxDigits : minDigits;
 
         // String that seperates bars
-        String distance = fill(spacing, ' ');
+        String barMarginSpace = fill(margin, ' ');
+        String barMarginLine = fill(margin, '_');
 
-        // Gets the number of characters in the largest element of the Y-axis set
-        int deci = (digits(max)>digits(min)) ? max : min;
+        // Width of the bar - Must scale evenly so any value is multiplied by 2 so when added to 1 will always be odd
+        String barWidthSpace = fill(width*2 + 1, ' ');
+        String barWidthLine = fill(width*2 + 1, '_');
 
-    // Make the graph!
+    // Render Graph
+        // The graph is created by running through loops until every single thing that needs to get graphed is graphed
+        boolean isGraphDone = false;
+
+        // Set values according to whether or not labels need to be created
+        boolean isYLabelDone = (labeling == 0 || labeling == 2) ? false : true;
+        boolean isXLabelDone = isYLabelDone; // These are the same thing to start but they need to be seperated during graphing
+        
+        // Since the isDones may change the areLabel checks if labels were ever added, needed for formatting
+        boolean areLabel = !isYLabelDone;
+
+        // If this isn't set to true then nothing was graphed, end the graphing phase
+        boolean pinged = false;
+
+
         // Add title if title is one of the labels expected
         if (labeling == 0 || labeling == 1) {
             lines.add(set.title);
         }
 
-        // The graph is created by running through loops until every single thing that needs to get graphed is graphed
-        boolean isGraphDone = false;
 
-        // Set values according to whether or not labels need to be created
-        boolean isYLabelDone = (labeling == 0 || labeling == 1) ? false : true;
-        boolean isXLabelDone = true;//(labeling == 0 || labeling == 1) ? false : true;
+        // DELETE THESE WHEN DONE TESTING !!!
+        isXLabelDone = true;
 
-        // If this isn't set to true then nothing was graphed, end the graphing phase
-        boolean pinged = false;
 
         int i = height;  
-
         while (!isGraphDone || !isYLabelDone || !isXLabelDone) {
-            // System.out.println("Loop: " + i + ", isYLabelDone: " + isYLabelDone + ", isXLabelDone: " + isXLabelDone + ", isGraphDone: " + isGraphDone);
+            // Line that all graphics will be added to
             String line = "";
 
+        // Graph the Y label
             if (!isYLabelDone) {
-                // Get the character of the Y-label at the height-i index
+                // Get the character of the Y label at the height-i index
                 line += set.yLabel.charAt( height - i ) + "  ";
+
                 // If the label is at the last index then don't add it next time
                 if ((height - i) == set.yLabel.length() - 1) {
                     isYLabelDone = true;
                 }
             }
-
-            // Only work on the graph if it's... not done
+            // If the Y label is done then make sure to add extra spaces to keep indentation right
+            else if (areLabel) {
+                line += "   ";
+            }
+            
+        // Works on graph as long as it's not done
             if (!isGraphDone) {
                 // Adds spaces before the number
-                line += fill(deci-digits(i), ' ')  + i + " - ";
+                line += fill(yMargin - digits(i, true), ' ')  + i + " --> |";
+
+                // Reset pinged to false before each run through
                 pinged = false;
 
-                // Start of the graph on the line
-                line += "|";
+                // Sets the spacing/margin between the bars based on whether or not it's 0
+                String barMargin = (i == 0) ? barMarginLine : barMarginSpace;
+                String barWidth = (i == 0) ? barWidthLine : barWidthSpace;
 
-                
-                // If this is the line at 0 then make the spaces with underscores
-                if (i == 0) {
-                    distance = fill(spacing, '_');
-                    
-                } else {
-                    distance = fill(spacing, ' ');
-                }
-
-                int j = 0;
-                while (j < yValues.size()) {
+                for (int j = 0; j < yValues.size(); j++) {
+                    // The current Y value being graphed
                     int header = yValues.get(j).intValue();
-                    j++;
 
-                    if (i >= 0) {
-                        if (header == i) {
-                            if (topper == null) {
-                                line += spacer + " " + header + " ";
-                            } else {
-                                line += spacer + " " + topper + " ";
-                            }
-                            System.out.println("Header ping! at i>=0 and Header == i: " + header);
-                            pinged = true;
-                            continue;
+                    // If header ends at the current level then add the topper
+                    if (header == i) {
+                        if (topper == null) {
+                            line += " " + header + " ";
+                        } else {
+                            line += barMargin + topper;
                         }
-                        if (header >= i) {
-                            line += distance + "|" + spacer + "|";
-                            System.out.println("Header ping! at i>=0 and Header >= i: " + header);
-                            pinged = true;
-                            continue;
-                        } 
-
-                        if (header <= i) {
-                            line += distance + "   ";
-                            continue;
-                        }
+                        pinged = true;
+                        continue;
                     }
-                    if (i < 0) {
-                        if (header == i) {
-                            if (topper == null) {
-                                line += spacer + " " + header + " ";
-                            } else {
-                                line += spacer + " " + topper + " ";
-                            }
-                            System.out.println("Header ping! at i<0 and Header == i: " + header);
-                            pinged = true;
-                            continue;
-                        }
-                        if (header <= i) {
-                            line += distance + "|" + spacer + "|";
-                            System.out.println("Header ping! at i<0 and Header <= i: " + header);
-                            pinged = true;
-                            continue;
-                        } 
 
-                        if (header >= i) {
-                            line += distance + "   ";
-                            continue;
-                        }
+                    // If header topper comes later then just make lines
+                    if (header >= i && i > 0  ||  header <= i && i < 0) {
+                        line += barMargin + "|" + barWidth + "|";
+                        pinged = true;
+                        continue;
+                    } 
+
+                    // If the bar isn't just graph nothing
+                    if (header <= i && i > 0 || header >= i && i < 0) {
+                        line += barMargin + " " + barWidth + " ";
+                        continue;
                     }
                 }
+                // Checks if graph is complete by seeing if no variables got graphed and the line is below the start and isn't at 0
+                if (!pinged && i < max && i != 0) {
+                    // Creates a little bottom bar
+                    for (int j = 0; j < yValues.size(); j++) {
+                        line += barMarginLine + barWidthLine + "__";
+                    }
 
-                if (!pinged && i < max) {
+                    // Stop graphing
                     isGraphDone = true;
                 }
             }
-        
-            // Add the line and continue on
+    
+        // Graph the X label if everything else is done
+            if (!isXLabelDone) {
+                // Not Yet :(
+            }
+
+
+        // Add the line and continue on
             lines.add(line);
             i--;
         }
