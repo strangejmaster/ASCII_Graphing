@@ -12,15 +12,21 @@ public class Graph {
 
     // Returns the # of digits in the specified int
     private static int digits(int value) {
-        // Flip sign to prevent it from being counted
+        int fixed = value;
+        
         if (value < 0) {
-            value = -value;
+            fixed = -value;
+            return String.valueOf( fixed ).length() + 1; // Make sure to account for the - char
         }
-        return String.valueOf( value ).length(); // Credit - https://www.baeldung.com/java-number-of-digits-in-int
+        return String.valueOf( fixed ).length(); // Credit - https://www.baeldung.com/java-number-of-digits-in-int
     }
 
     private static String fill(int value, char filler) {
-        return new String(new char[value]).replace('\0', filler); // Credit - https://stackoverflow.com/questions/2804827/create-a-string-with-n-characters
+        int fixed = value;
+        if (value < 0) {
+            fixed = -value;
+        }
+        return new String(new char[fixed]).replace('\0', filler); // Credit - https://stackoverflow.com/questions/2804827/create-a-string-with-n-characters
     }
 
 // Test Graph
@@ -89,6 +95,13 @@ public class Graph {
         ArrayList<Integer> xValues = set.getDataArray(0);
         ArrayList<Integer> yValues = set.getDataArray(1);
     
+        // Extremes
+        set.sortOnIndex(1);
+        ArrayList<Integer> yValueSort = set.getDataArray(1);
+        int max = set.getDataPoint( yValueSort.size() - 1 )[1].intValue();
+        int min = set.getDataPoint(0)[1].intValue();
+        set.sortOnIndex(0);
+
         int height = 0;
 
         // Set the height value depending on which mode is used
@@ -126,8 +139,9 @@ public class Graph {
         // String that seperates bars
         String distance = fill(spacing, ' ');
 
-        // Gets the # of decimal places in the largest 
-        int deci = digits(set.getDataPoint(yValues.size())[1].intValue());
+        // Gets the number of characters in the largest element of the Y-axis set
+        int deci = (digits(max)>digits(min)) ? max : min;
+
     // Make the graph!
         // Add title if title is one of the labels expected
         if (labeling == 0 || labeling == 1) {
@@ -139,10 +153,15 @@ public class Graph {
 
         // Set values according to whether or not labels need to be created
         boolean isYLabelDone = (labeling == 0 || labeling == 1) ? false : true;
-        boolean isXLabelDone = (labeling == 0 || labeling == 1) ? false : true;
+        boolean isXLabelDone = true;//(labeling == 0 || labeling == 1) ? false : true;
 
-        int i = height; 
+        // If this isn't set to true then nothing was graphed, end the graphing phase
+        boolean pinged = false;
+
+        int i = height;  
+
         while (!isGraphDone || !isYLabelDone || !isXLabelDone) {
+            // System.out.println("Loop: " + i + ", isYLabelDone: " + isYLabelDone + ", isXLabelDone: " + isXLabelDone + ", isGraphDone: " + isGraphDone);
             String line = "";
 
             if (!isYLabelDone) {
@@ -158,6 +177,7 @@ public class Graph {
             if (!isGraphDone) {
                 // Adds spaces before the number
                 line += fill(deci-digits(i), ' ')  + i + " - ";
+                pinged = false;
 
                 // Start of the graph on the line
                 line += "|";
@@ -165,32 +185,68 @@ public class Graph {
                 
                 // If this is the line at 0 then make the spaces with underscores
                 if (i == 0) {
-                    spacer = "_";
+                    distance = fill(spacing, '_');
+                    
                 } else {
-                    spacer = " ";
+                    distance = fill(spacing, ' ');
                 }
 
                 int j = 0;
                 while (j < yValues.size()) {
                     int header = yValues.get(j).intValue();
-                    if (header >= i) {
-                        line += distance + "|" + spacer + "|";
-                        continue;
-                    } 
+                    j++;
 
-                    if (header <= i) {
-                        line += distance + "   ";
-                    }
-
-                    if (header == i) {
-                        if (topper == null) {
-                            line += spacer + " " + header + " ";
-                        } else {
-                            line += spacer + " " + topper + " ";
+                    if (i >= 0) {
+                        if (header == i) {
+                            if (topper == null) {
+                                line += spacer + " " + header + " ";
+                            } else {
+                                line += spacer + " " + topper + " ";
+                            }
+                            System.out.println("Header ping! at i>=0 and Header == i: " + header);
+                            pinged = true;
+                            continue;
                         }
-                        continue;
+                        if (header >= i) {
+                            line += distance + "|" + spacer + "|";
+                            System.out.println("Header ping! at i>=0 and Header >= i: " + header);
+                            pinged = true;
+                            continue;
+                        } 
+
+                        if (header <= i) {
+                            line += distance + "   ";
+                            continue;
+                        }
                     }
-                } 
+                    if (i < 0) {
+                        if (header == i) {
+                            if (topper == null) {
+                                line += spacer + " " + header + " ";
+                            } else {
+                                line += spacer + " " + topper + " ";
+                            }
+                            System.out.println("Header ping! at i<0 and Header == i: " + header);
+                            pinged = true;
+                            continue;
+                        }
+                        if (header <= i) {
+                            line += distance + "|" + spacer + "|";
+                            System.out.println("Header ping! at i<0 and Header <= i: " + header);
+                            pinged = true;
+                            continue;
+                        } 
+
+                        if (header >= i) {
+                            line += distance + "   ";
+                            continue;
+                        }
+                    }
+                }
+
+                if (!pinged && i < max) {
+                    isGraphDone = true;
+                }
             }
         
             // Add the line and continue on
