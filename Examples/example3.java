@@ -12,7 +12,7 @@ public class example3 {
 
         DataSet set = new DataSet(arr, 2);
 
-        set.setInfo("The Coolest Bar Graph", "This is the X-axis", "This is the Y-axis!", null);
+        set.setInfo("The Coolest Bar Graph", "This is the X-axis", "This is the Y-axis! What happens when I make this extra long?", null);
 
         System.out.println("Creating bar graph, going dark\n");
         Frame frame = Graph.bar(set, -1, 1, 1, 2);
