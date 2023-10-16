@@ -41,6 +41,7 @@ public class Frame {
         return set;
     }
 
+// Display functions
     // Prints out lines ArrayList to display graph in terminal
     public void display() {
         for (int i = 0; i < lines.size(); i++) {
