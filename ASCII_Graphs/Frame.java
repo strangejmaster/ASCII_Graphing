@@ -47,4 +47,16 @@ public class Frame {
             System.out.println(lines.get(i));
         }
     }
+
+    // Prints out a certain line
+    public void display(int line) {
+        System.out.println(lines.get(line));        
+    }
+
+    // Prints out a range of lines (Includes start, stops before end)
+    public void display(int start, int end) {
+        for (int i = start; i < end; i++) {
+            System.out.println(lines.get(i));
+        }
+    }
 }
