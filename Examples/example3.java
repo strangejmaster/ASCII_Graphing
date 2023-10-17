@@ -8,12 +8,13 @@ import ASCII_Graphs.*;
 public class example3 {
     public static void main(String args[]) {
         // The array that will be made into a bar graph
-        Integer[][] arr = {{1, -3}, {-6,-12}, {0, 2}, {5, 11}, {-5,-10}};
+        Integer[][] arr = {{15, -3}, {-6,-12}, {0, 2}, {0, 13}, {-5,-10}};
 
         DataSet set = new DataSet(arr, 2);
 
-        set.setInfo("The Coolest Bar Graph", "This is the X-axis", "This is the Y-axis!", null);
-
+        // set.setInfo("The Coolest Bar Graph these titles can be super long but no matter they'll get truncated and added to the next line cause this is super awesome", "This is the X-axis", "This is the Y-axis!", null);
+        set.setInfo("Graph Bar", "Graph", "Bar", null);
+        
         System.out.println("Creating bar graph, going dark\n");
 
         /*
@@ -33,9 +34,9 @@ public class example3 {
         *      (If a value is negative then brackets will be added around it)
         *      0 - Bars will be topped with the Y value
         *      1 - Bars will be topped with `_`
-        *      2 - Bars will be topped with `-` 
+        *      2 - Bars will be topped with `-`
         *      3 - Bars will be topped with ` `
-        *      4 - Bars will be topped with `=`  
+        *      4 - Bars will be topped with `=`
         *      
         * Labeling - What labels are displayed
         *     -1 - Nothing Displayed
@@ -43,7 +44,7 @@ public class example3 {
         *      1 - Title Displayed
         *      2 - X and Y Labels Displayed
         */
-        Frame frame = Graph.bar(set, -1, 3, 0, 0, 2);
+        Frame frame = Graph.bar(set, -2, 2, 2, 1, 1);
 
         System.out.println("The Bar graph is complete!! \n");
 

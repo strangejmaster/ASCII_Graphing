@@ -50,7 +50,8 @@ public class Graph {
         for (int i = 0; i < blocks; i++) {
             // The number of characters which have already been placed into blocks
             int blockedChars = i * len;
-            System.out.println("Block Count: " + i + " | blockedChars: " + blockedChars + " | blocks: " + blocks);
+            
+            // System.out.println("Block Count: " + i + " | blockedChars: " + blockedChars + " | blocks: " + blocks);
 
             String block = "";
 
@@ -77,7 +78,9 @@ public class Graph {
                 // E.g. if blockedChars was at 3 and the len was 3 then going to index 3 would return a new character, then just cover the area that the len specifies
                 block = str.substring(blockedChars, blockedChars + len);
             }
-            System.out.println("Block: |" + block + "|");
+            
+            // System.out.println("Block: |" + block + "|");
+            
             formattedStrings.add(block);
         }
 
@@ -162,7 +165,7 @@ public class Graph {
         // Get the X and Y values to be plotted
         ArrayList<Integer> xValues = set.getDataArray(0);
         ArrayList<Integer> yValues = set.getDataArray(1);
-    
+
         // Extremes
         // Sorts the set based on Y values
         set.sortOnIndex(1);
@@ -180,14 +183,26 @@ public class Graph {
         // Calculate the width, width must be odd so the function can only scale width by 2s, at minimum it is 1
         int calculatedWidth = width * 2 + 1;
 
+        // Blocks that store each X value
+        ArrayList<ArrayList<String>> xBlocks = new ArrayList<ArrayList<String>>();
+
+        // Calclulate X Blocks
+        for (int i = 0; i < xValues.size(); i++) {
+            // Formats each xValue into calculatedWidth blocks
+            xBlocks.add( formatRule(String.valueOf(xValues.get(i)), calculatedWidth, ' ') );
+        }
+
+        // The parts that the xArrow are made up of
+        char[] xArrow = {'^', '|'};
+        
         // Set the height value depending on which mode is used
         int height = 0;
         switch (mode) {
             case -1:
-                height = max;
+                height = yValues.size() - 1;
                 break;
             case -2:
-                height = yValues.size();
+                height = max;
                 break;
             default:
                 height = mode;
@@ -241,24 +256,45 @@ public class Graph {
         boolean areLabel = !isYLabelDone;
 
         // If this isn't set to true then nothing was graphed, end the graphing phase
-        boolean pinged = false;
+        boolean yPinged = false;
 
-        // DELETE THESE WHEN DONE TESTING !!!
-        isXLabelDone = true;
+        // If no X values got graphed stop labeling xValues
+        boolean xPinged = false;
 
+        // Lengths of the graph
+        int graphStartCount = 0;
+        int graphTotalCount = 0;
 
-        int i = height;  
+        String graphStartMargin = "";
+
+    // Multiple line pointers allow for more complex graphing flows
+        // The line pointer starts at the top and works its way down
+        int linePointer = height;
+
+        // *USED FOR GRAPH AND MODE MANIPULATION* A second line pointer which may have more changes
+        int linePointer2 = linePointer;
+        int yValueCount = yValues.size();
+
+        // *USED FOR X LABEL* Counts the amount of X lines
+        int linePointer3 = xArrow.length;
+
         while (!isGraphDone || !isYLabelDone || !isXLabelDone) {
             // Line that all graphics will be added to
             String line = "";
 
+            if (mode == -1 && yValueCount > 0) {
+                // If the mode is efficient then quickly jump to the next Y value
+                linePointer2 = yValues.get(yValueCount - 1);
+                yValueCount--;
+            }
+
         // Graph the Y label
             if (!isYLabelDone) {
-                // Get the character of the Y label at the height-i index
-                line += set.yLabel.charAt( height - i ) + "  ";
+                // Get the character of the Y label at the height-linePointerindex
+                line += set.yLabel.charAt( height - linePointer ) + "  ";
 
                 // If the label is at the last index then don't add it next time
-                if ((height - i) == set.yLabel.length() - 1) {
+                if ((height - linePointer) == set.yLabel.length() - 1) {
                     isYLabelDone = true;
                 }
             }
@@ -266,25 +302,65 @@ public class Graph {
             else if (areLabel) {
                 line += "   ";
             }
+
+        // Graph the X label
+            if (!isXLabelDone && isGraphDone) {
+                // Reset pinging
+                xPinged = false;
+
+                // Add margins
+                line += fill(graphStartCount - line.length(), ' ');
+
+                // Since width is multiplied by 2 and 1 is added to get the width of a column width alone is the margin the center is from either side, 1 is added to account for column lines
+                String sideMargin = fill(width + 1, ' ');
+                
+                if (linePointer3 > 0) {
+                    for (int j = 0; j < xValues.size(); j++) {
+                        // For each X value add a piece of the arrow
+                        line += barMarginSpace + sideMargin + xArrow[xArrow.length - linePointer3] + sideMargin;
+                        xPinged = true;
+                    }
+                } 
+                else {
+                    // Once l is below 1 the arrow is done and the values can be graphed
+                    for (int j = 0; j < xValues.size(); j++) {
+                        // Simply place in the value if it's in range
+                        if (-linePointer3 < xBlocks.get(j).size()) {
+                            line += barMarginSpace + " " + xBlocks.get(j).get(-linePointer3) + " ";
+                            xPinged = true;
+                        }
+                        else {
+                            line += barMarginSpace + barWidthSpace + "  ";
+                        }
+                    }
+                }
+                
+                // Check if the X label is complete by checking if nothing got added
+                if (!xPinged) {
+                    isXLabelDone = true;
+                }
+
+                linePointer3--;
+            } 
             
         // Works on graph as long as it's not done
             if (!isGraphDone) {
                 // Adds spaces before the number
-                line += fill(yMargin - digits(i, true), ' ')  + i + " --> |";
+                line += fill(yMargin - digits(linePointer2, true), ' ')  + linePointer + " --> |";
 
-                // Reset pinged to false before each run through
-                pinged = false;
+                // Reset yPinged to false before each run through
+                yPinged = false;
 
                 // Sets the spacing/margin between the bars based on whether or not it's 0
-                String barMargin = (i == 0) ? barMarginLine : barMarginSpace;
-                String barWidth = (i == 0) ? barWidthLine : barWidthSpace;
+                String barMargin = (linePointer2 == 0) ? barMarginLine : barMarginSpace;
+                String barWidth = (linePointer2 == 0) ? barWidthLine : barWidthSpace;
 
                 for (int j = 0; j < yValues.size(); j++) {
                     // The current Y value being graphed
                     int header = yValues.get(j).intValue();
 
-                    // By subtracting i from the header the distance between the current line and top of the header is found
-                    int distFromTop = header - i;
+                    // By subtracting linePointer from the header the distance between the current line and top of the header is found
+                    int distFromTop = header - linePointer2;
 
                     // Get the abs distance (Magnitude) of distFromTop
                     distFromTop = (distFromTop > 0) ? distFromTop : -distFromTop;
@@ -293,7 +369,7 @@ public class Graph {
                     line += barMargin; 
 
                     // If header ends at the current level then add the topper
-                    if (header == i) {
+                    if (header == linePointer2) {
                         if (topper == null) {
                             line += " " + topperRuled.get(j).get(distFromTop) + " ";
                         } 
@@ -301,35 +377,45 @@ public class Graph {
                             line += topper;
                         }
 
-                        pinged = true;
+                        yPinged = true;
                         continue;
                     }
 
                     // If header topper comes later then just make lines
-                    if (header >= i && i >= 0  ||  header <= i && i < 0) {
+                    if (header >= linePointer2 && linePointer2 >= 0  ||  header <= linePointer2 && linePointer2 < 0) {
                         // If the distance from the topper is less than the total lines needed to graph the topper then graph it
-                        if (distFromTop < topperRuled.get(j).size() && topper == null) {
-                            line += "|" + topperRuled.get(j).get(distFromTop) + "|";
+                        if (topper == null) {
+                            if (distFromTop < topperRuled.get(j).size()) {
+                                line += "|" + topperRuled.get(j).get(distFromTop) + "|";
+                            }
                         }
                         else {
                             line += "|" + barWidth + "|";
                         }
-                        pinged = true;
+                        yPinged = true;
                         continue;
                     } 
 
                     // If the bar isn't just graph nothing
-                    if (header <= i && i >= 0 || header >= i && i <= 0) {
+                    if (header <= linePointer2 && linePointer2 >= 0 || header >= linePointer2 && linePointer2 <= 0) {
                         line += " " + barWidth + " ";
                         continue;
                     }
-                }
+                } 
+                
                 // Checks if graph is complete by seeing if no variables got graphed and the line is below the start and isn't at 0
-                if (!pinged && i < max && i != 0) {
+                if (!yPinged && linePointer2 < max && linePointer2 != 0) {
+                    // Recored the total length of the line
+                    graphTotalCount = line.length();
+
                     // Remove extra spaces added to leave room for new line
                     String extra = barMarginLine + barWidthLine + "__";
 
                     line = line.substring(0, line.length() - extra.length() * (yValues.size()));
+
+                    // Record the length of the line without the graph
+                    graphStartCount = line.length();
+                    graphStartMargin = fill(graphStartCount, ' ');
 
                     // Creates a little bottom line
                     for (int j = 0; j < yValues.size(); j++) {
@@ -340,21 +426,31 @@ public class Graph {
                     isGraphDone = true;
                 }
             }
-    
-        // Graph the X label if everything else is done
-            if (!isXLabelDone) {
-                // Not Yet :(
-            }
 
         // Add the line and continue on
             lines.add(line);
-            i--;
+            linePointer--;
+            linePointer2--;
         }
         
         // Add title if title is one of the labels expected
         if (labeling == 0 || labeling == 1) {
-            // Adds the title to the front, formatted and all
-            lines.add(0, set.title);
+            // Length of the graph by subtracting the starting line length from the total line length
+            int titleMargin = graphTotalCount - graphStartCount;
+
+        
+            // Create blocks of the graph which fit into the space
+            ArrayList<String> blocks = formatRule(set.title, titleMargin, ' ');
+
+            // Create a string that fills the space between the left rule and title
+            String titleStrMargin = fill(graphStartCount, ' ');
+
+            for (int j = 0; j < blocks.size(); j++) {
+                // Add each block to the start of the array with the titleStrMargin
+                // Subtracting j and 1 from the size allows the get to go from the back to the front since every value is getting add at the very front 
+                String str = titleStrMargin + blocks.get(blocks.size() - j - 1);
+                lines.add(0, str);
+            }
         }
 
     // Alas the graph is complete
