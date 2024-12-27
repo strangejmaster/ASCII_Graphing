@@ -1,3 +1,7 @@
+# Notice
+This project is currently unfinished and while it may work at smaller scales it works pretty poorly when scaling large data samples.
+I do want to keep working on this project in the future but for now I have school work to do and some other interesting projects that I'm wanting to work on.
+
 # ASCII Graphing
 This cool library allows data to be stored/graphed in simple ASCII.
 
